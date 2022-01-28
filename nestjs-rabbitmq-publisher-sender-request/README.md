@@ -73,7 +73,8 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 Nest is [MIT licensed](LICENSE).
 
 
-# microservices publisher-sender-request (TESTED 2022-01-28)
+# microservices publisher-sender-request 
+# (TESTED 2022-01-28)
 
 ```bash
 ============== NOT USED
@@ -83,6 +84,9 @@ npm uninstall amqplib amqp-connection-manager
 npm i @nestjs/swagger swagger-ui-express
 npm i @golevelup/nestjs-rabbitmq
 nest g res publisher-sender-request
+
+swagger http://localhost:3001/api-docs
+
 ```
 
 # referensi

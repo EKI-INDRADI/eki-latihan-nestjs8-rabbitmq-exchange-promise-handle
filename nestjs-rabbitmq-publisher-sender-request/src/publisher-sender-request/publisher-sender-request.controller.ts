@@ -27,17 +27,15 @@ export class PublisherSenderRequestController {
 
 
     // ==================================================================
-    // fix bug await, promise, toPromise() is deprecated in rxjs 7++ \n
-    // fix with promise + await + firstValueFrom + try catch \n
-    // try publish . . .
-
-    // note : fix rxjs 7++ undefined value by eki 
-
-    // because NestJs8 , hit controller always stopped subscribe in same service
+    // because NestJs8 , hit controller bug promise handle & rxjs toPromise() is deprecated in rxjs 7++ , effort to fix this
 
     // [Nest] 1356  - 01/28/2022, 22:13:10     LOG [AmqpConnection] Successfully connected to a RabbitMQ broker
     // [Nest] 1356  - 01/28/2022, 22:13:10     LOG [AmqpConnection] Trying to connect to a RabbitMQ broker
     // [Nest] 1356  - 01/28/2022, 22:13:10     LOG [AmqpConnection] Successfully connected a RabbitMQ channel "AmqpConnection"
+
+    // solved by node_modules documentation node_modules\@golevelup\nestjs-rabbitmq\lib\amqp\connection.d.ts
+
+    // await this.amqpConnection.init().then(async () => {
     // ==================================================================
 
     let res_json: any = {}

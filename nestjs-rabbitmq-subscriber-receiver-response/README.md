@@ -74,7 +74,8 @@ Nest is [MIT licensed](LICENSE).
 
 
 
-# microservices subscriber-receiver-response (TESTED 2022-01-28)
+# microservices subscriber-receiver-response
+# (TESTED 2022-01-28)
 
 ```bash
 ============== NOT USED
