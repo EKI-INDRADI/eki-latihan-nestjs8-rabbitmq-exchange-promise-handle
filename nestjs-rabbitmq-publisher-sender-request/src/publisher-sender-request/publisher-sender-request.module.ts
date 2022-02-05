@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { PublisherSenderRequestService } from './publisher-sender-request.service';
 import { PublisherSenderRequestController } from './publisher-sender-request.controller';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import { PublisherSenderRequestService2 } from './publisher-sender-request.service2';
+// import { PublisherSenderRequestService2 } from './publisher-sender-request.service2';
 
 @Module({
   imports:  [
@@ -23,6 +23,7 @@ import { PublisherSenderRequestService2 } from './publisher-sender-request.servi
      PublisherSenderRequestModule,
   ],
   controllers: [PublisherSenderRequestController],
-  providers: [PublisherSenderRequestService, PublisherSenderRequestService2]
+  providers: [PublisherSenderRequestService]
+  // providers: [PublisherSenderRequestService, PublisherSenderRequestService2]
 })
 export class PublisherSenderRequestModule { }

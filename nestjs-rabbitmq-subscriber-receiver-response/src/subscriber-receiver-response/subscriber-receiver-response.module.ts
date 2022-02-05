@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SubscriberReceiverResponseService } from './subscriber-receiver-response.service';
 import { SubscriberReceiverResponseController } from './subscriber-receiver-response.controller';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import { SubscriberReceiverResponseService2 } from './subscriber-receiver-response.service2';
+// import { SubscriberReceiverResponseService2 } from './subscriber-receiver-response.service2';
 
 
 @Module({
@@ -23,6 +23,7 @@ import { SubscriberReceiverResponseService2 } from './subscriber-receiver-respon
     SubscriberReceiverResponseModule,
   ],
   controllers: [SubscriberReceiverResponseController],
-  providers: [SubscriberReceiverResponseService, SubscriberReceiverResponseService2]
+  providers: [SubscriberReceiverResponseService]
+  // providers: [SubscriberReceiverResponseService, SubscriberReceiverResponseService2]
 })
 export class SubscriberReceiverResponseModule {}

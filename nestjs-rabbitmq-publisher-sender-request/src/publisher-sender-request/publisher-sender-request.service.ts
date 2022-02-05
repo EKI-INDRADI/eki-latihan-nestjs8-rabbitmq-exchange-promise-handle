@@ -12,7 +12,7 @@ export class PublisherSenderRequestService {
   @RabbitSubscribe({
     exchange: 'ekiexchange1',
     routingKey: 'publisher-sender-request-service',
-    queue: 'ekiexchange1-queue',
+    // queue: 'ekiexchange1-queue', // JANGAN DI DEFINED (BIAR GENERATE SENDIRI PER ROUTING KEY 1 QUEUE)
   })
 
   public async pubSubHandler(msg: {}) {

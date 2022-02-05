@@ -5,11 +5,13 @@ import { UpdatePublisherSenderRequestDto } from './dto/update-publisher-sender-r
 import { lastValueFrom, Observable, firstValueFrom } from 'rxjs';
 import { ApiTags } from '@nestjs/swagger';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { Console } from 'console';
 
 
 @ApiTags('RabbitMQ Publisher/Sender/Request Message')
 @Controller('publisher-sender-request')
 export class PublisherSenderRequestController {
+
 
 
   constructor(
@@ -40,32 +42,47 @@ export class PublisherSenderRequestController {
 
     let res_json: any = {}
 
+
     try {
-      let request: any = await this.amqpConnection.init().then(async () => {
-        await this.amqpConnection.publish(`${exchange}`, `${routingKey}`, {
-          msg: `${message}`
-        })
+
+      //========================= SETELAH BUG FIX RECEIVER QUEUE SERVICES UDAH GA PERLU PROMISE INIT 
+      // let request: any = await this.amqpConnection.init().then(async () => {
+
+      await this.amqpConnection.publish(`${exchange}`, `${routingKey}`, {
+        msg: `${message}`
+      }).then(async () => {
+        res_json.statusCode = 1
+        res_json.message = `SUCCESS SENT ROUTING KEY : ${routingKey}`
+
+        return res_json
+      }).catch(async err => {
+        res_json.statusCode = 0
+        res_json.message = `ERROR SENT ROUTING KEY : ${routingKey}, detail : ${err}`
+
+        return res_json
       })
 
+       
 
-      //================== cara ini queque ada 2 harusnya di kirim ke masih2 routingkey , tapi kalo 1 gak aktif maka routing key yang 1 nya akan menrima 2x
+      // }).catch(async err => {
+      //   res_json.statusCode = 0
+      //   res_json.message = `ERROR INIT CONNECTION, detail : ${err}`
 
-      // await this.amqpConnection.publish(`${exchange}`, `${routingKey}`, {
-      //   msg: `${message}`
+      //   return res_json
       // })
-      //================== /cara ini queque ada 2 harusnya di kirim ke masih2 routingkey
 
-      //========================= NESTJS 8 EKI CONFIRM 2022-01-28 BUG DOUBLE HIT =========================
-      // await this.amqpConnection.publish(`${exchange}`, `${routingKey}`, {
-      //   msg: `${message}`
-      // })
-      //========================= NESTJS 8 EKI CONFIRM 2022-01-28 BUG DOUBLE HIT =========================
+       //========================= /SETELAH BUG FIX RECEIVER QUEUE SERVICES UDAH GA PERLU PROMISE INIT 
+
+      // EKI NOTE : 
+
+      // publisher-sender-request.service.ts <<< PADA SERVICE RECIEVER PASTIKAN  JANGAN MENGGUNAKAN QUEUE
+      // BIAR DARI EXCHANGE YANG GENERATE QUEUE NYA BIAR GA DOUBLE HIT
 
       // let force_firstValueFrom = await firstValueFrom(request, { defaultValue: "FINISH" })
 
-      res_json.statusCode = 1
-      res_json.message = "SUCCESS"
+
       return res_json
+
 
     } catch (error) {
       res_json.statusCode = 0
@@ -131,6 +148,8 @@ export class PublisherSenderRequestController {
 
 
         let loop = createPublisherSenderRequestDtoLoop.loop
+
+        let checkStatusCode: any = []
         for (let i_a = 1; i_a <= loop; i_a++) {
 
           await this.bugFixAmqpConnectionPublish_NestJs8_RxJs7_v2(
@@ -138,20 +157,61 @@ export class PublisherSenderRequestController {
             "publisher-sender-request-service",
             `${i_a}`
           ).then(
-            async () => { // FIX PROGRESSIVE BACKEND
-              await this.bugFixAmqpConnectionPublish_NestJs8_RxJs7_v2(
+            async (responsePublisherService: any) => { // FIX PROGRESSIVE BACKEND
+
+
+              checkStatusCode.push({
+                k: "publisher-sender-request-service",
+                v: {
+                  statusCode: responsePublisherService.statusCode,
+                  value: `${i_a}`
+                }
+              })
+
+
+              let responseSubscriberService: any = await this.bugFixAmqpConnectionPublish_NestJs8_RxJs7_v2(
                 createPublisherSenderRequestDtoLoop.exchange,
                 "subscriber-receiver-response-service",
                 `${i_a}`
               )
-            }
-          )
+
+              checkStatusCode.push({
+                k: "subscriber-receiver-response-service",
+                v: {
+                  statusCode: responseSubscriberService.statusCode,
+                  value: `${i_a}`
+                }
+              })
+
+            } // end then async
+          ) //end async
+
+
+
 
           if (i_a == loop) { // FIX PROGRESSIVE BACKEND
+
+            let count_err = 0
+            let list_err = []
+
+            // if (checkStatusCode.length > 0) {
+            //   await checkStatusCode.forEach(async (check: any) => {
+            //     if (check.v.statusCode == 0) {
+            //       count_err += 1
+            //       list_err.push({
+            //         from: check.k,
+            //         value: check.v.value
+            //       })
+            //     } //end if
+            //   })
+            // } //end if
+
             res_json.statusCode = 1
             res_json.message = "SUCCESS"
+            res_json.statusCodeArr = checkStatusCode
             return res_json
-          }
+
+          } //end if
 
         } // end for
 

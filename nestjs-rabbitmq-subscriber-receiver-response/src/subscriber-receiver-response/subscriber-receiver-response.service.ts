@@ -8,7 +8,7 @@ export class SubscriberReceiverResponseService {
   @RabbitSubscribe({
     exchange: 'ekiexchange1',
     routingKey: ['subscriber-receiver-response-service'], // bs array
-    queue: 'ekiexchange1-queue',
+    // queue: 'ekiexchange1-queue',  // JANGAN DI DEFINED (BIAR GENERATE SENDIRI PER ROUTING KEY 1 QUEUE)
   })
 
   public async pubSubHandler(msg: {}) {
