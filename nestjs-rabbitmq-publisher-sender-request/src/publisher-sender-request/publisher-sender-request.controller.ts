@@ -47,6 +47,14 @@ export class PublisherSenderRequestController {
         })
       })
 
+
+      //================== cara ini queque ada 2 harusnya di kirim ke masih2 routingkey , tapi kalo 1 gak aktif maka routing key yang 1 nya akan menrima 2x
+
+      // await this.amqpConnection.publish(`${exchange}`, `${routingKey}`, {
+      //   msg: `${message}`
+      // })
+      //================== /cara ini queque ada 2 harusnya di kirim ke masih2 routingkey
+
       //========================= NESTJS 8 EKI CONFIRM 2022-01-28 BUG DOUBLE HIT =========================
       // await this.amqpConnection.publish(`${exchange}`, `${routingKey}`, {
       //   msg: `${message}`
@@ -80,15 +88,6 @@ export class PublisherSenderRequestController {
     try {
 
 
-
-
-
-      // if (createPublisherSenderRequestDtoLoop.exchange == "ekiexchange1/ekiexchange2") {
-      //   res_json.statusCode = 0
-      //   res_json.message = "exchange which one ekiexchange1 or ekiexchange2"
-      //   return res_json
-      // }
-
       if (createPublisherSenderRequestDtoLoop.exchange != "ekiexchange1") {
         res_json.statusCode = 0
         res_json.message = "which ekiexchange1"
@@ -100,7 +99,6 @@ export class PublisherSenderRequestController {
         createPublisherSenderRequestDtoLoop.routing_key == "publisher-sender-request-service" ||
         createPublisherSenderRequestDtoLoop.routing_key == "subscriber-receiver-response-service"
       ) {
-
 
 
       } else {
@@ -125,7 +123,6 @@ export class PublisherSenderRequestController {
 
         createPublisherSenderRequestDtoLoop.create_at = new Date() // Date.now()
 
-
         let req_body = {
           ...createPublisherSenderRequestDtoLoop
         }
@@ -140,16 +137,17 @@ export class PublisherSenderRequestController {
             createPublisherSenderRequestDtoLoop.exchange,
             "publisher-sender-request-service",
             `${i_a}`
+          ).then(
+            async () => { // FIX PROGRESSIVE BACKEND
+              await this.bugFixAmqpConnectionPublish_NestJs8_RxJs7_v2(
+                createPublisherSenderRequestDtoLoop.exchange,
+                "subscriber-receiver-response-service",
+                `${i_a}`
+              )
+            }
           )
 
-          await this.bugFixAmqpConnectionPublish_NestJs8_RxJs7_v2(
-            createPublisherSenderRequestDtoLoop.exchange,
-            "subscriber-receiver-response-service",
-            `${i_a}`
-          )
-
-
-          if (i_a == loop) {
+          if (i_a == loop) { // FIX PROGRESSIVE BACKEND
             res_json.statusCode = 1
             res_json.message = "SUCCESS"
             return res_json
@@ -175,11 +173,14 @@ export class PublisherSenderRequestController {
 
           createPublisherSenderRequestDtoLoop.create_at = new Date() // Date.now()
 
+          createPublisherSenderRequestDtoLoop.count = i_a
+
           let req_body = {
             ...createPublisherSenderRequestDtoLoop
           }
           delete req_body.routing_key
           delete req_body.exchange
+
 
           await this.bugFixAmqpConnectionPublish_NestJs8_RxJs7_v2(
             createPublisherSenderRequestDtoLoop.exchange,

@@ -21,4 +21,7 @@ export class CreatePublisherSenderRequestDto {
 export class CreatePublisherSenderRequestDtoLoop extends OmitType(CreatePublisherSenderRequestDto, ['message']){
     @ApiProperty({ required: true, default: 100})
     loop: number
+
+    @ApiHideProperty()
+    count: number
 }
